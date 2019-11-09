@@ -2,6 +2,7 @@ package fr.cedric.garcia.library.services
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import fr.cedric.garcia.library.book.Book
+import fr.cedric.garcia.library.offer.CommercialOffer
 import kotlinx.coroutines.Deferred
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -12,12 +13,12 @@ interface HenriPotierService {
     @GET("books")
     fun getBooks(): Deferred<List<Book>>
 
-    /*@GET("books/{isbns}/commercialOffers")
-    fun getCommercialOffersByBook(): Deferred<List<CommercialOffer>>*/
+    @GET("books/{isbnList}/commercialOffers")
+    fun getCommercialOffers(): Deferred<List<CommercialOffer>>
 
     companion object {
         private const val baseUrl = "http://henri-potier.xebia.fr/"
-        val service = Retrofit
+        val service: HenriPotierService = Retrofit
             .Builder()
             .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())

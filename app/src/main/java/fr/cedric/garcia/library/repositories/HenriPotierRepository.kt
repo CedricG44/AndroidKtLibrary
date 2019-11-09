@@ -2,13 +2,20 @@ package fr.cedric.garcia.library.repositories
 
 import arrow.core.Either
 import fr.cedric.garcia.library.book.Book
+import fr.cedric.garcia.library.offer.CommercialOffer
 import fr.cedric.garcia.library.services.HenriPotierService
+import kotlinx.coroutines.Deferred
 
 class HenriPotierRepository(private val service: HenriPotierService) {
 
-    suspend fun getBooks(): Either<Throwable, List<Book>> {
+    suspend fun getBooks(): Either<Throwable, List<Book>> = callService(service.getBooks())
+
+    suspend fun getCommercialOffers(): Either<Throwable, List<CommercialOffer>> =
+        callService(service.getCommercialOffers())
+
+    private suspend fun <K> callService(deferred: Deferred<K>): Either<Throwable, K> {
         return try {
-            Either.right(service.getBooks().await())
+            Either.right(deferred.await())
         } catch (ex: Exception) {
             Either.left(ex)
         }
