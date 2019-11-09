@@ -17,7 +17,6 @@ import kotlinx.coroutines.withContext
 class LibraryActivity : AppCompatActivity() {
 
     private val booksRepository = HenriPotierRepository(HenriPotierService.service)
-    private lateinit var books: List<Book>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
