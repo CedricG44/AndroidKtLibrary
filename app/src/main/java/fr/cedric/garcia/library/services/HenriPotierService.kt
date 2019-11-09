@@ -7,14 +7,15 @@ import kotlinx.coroutines.Deferred
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 
 interface HenriPotierService {
 
     @GET("books")
-    fun getBooks(): Deferred<List<Book>>
+    fun getBooksAsync(): Deferred<List<Book>>
 
-    @GET("books/{isbnList}/commercialOffers")
-    fun getCommercialOffers(): Deferred<List<CommercialOffer>>
+    @GET("books/{isbn}/commercialOffers")
+    fun getCommercialOffersAsync(@Path("isbn") isbn: String): Deferred<CommercialOffer>
 
     companion object {
         private const val baseUrl = "http://henri-potier.xebia.fr/"

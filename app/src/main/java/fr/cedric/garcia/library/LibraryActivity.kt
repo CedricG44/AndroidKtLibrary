@@ -17,6 +17,7 @@ import kotlinx.coroutines.withContext
 class LibraryActivity : AppCompatActivity() {
 
     private val booksRepository = HenriPotierRepository(HenriPotierService.service)
+    private lateinit var books: List<Book>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +26,25 @@ class LibraryActivity : AppCompatActivity() {
         val bookListRecyclerView = findViewById<RecyclerView>(R.id.bookListView)
         bookListRecyclerView.layoutManager = LinearLayoutManager(this)
         createBookList(bookListRecyclerView)
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val offer = booksRepository.getCommercialOffers(
+                listOf(
+                    "c8fabf68-8374-48fe-a7ea-a00ccd07afff",
+                    "a460afed-e5e7-4e39-a39d-c885c05db861",
+                    "bbcee412-be64-4a0c-bf1e-315977acd924"
+                )
+            )
+
+            withContext(Dispatchers.IO) {
+                offer.fold({
+                    Log.e("getCommercialOffer", it.message, it)
+                }, {
+                    Log.d("offer", it.toString())
+                    it
+                })
+            }
+        }
     }
 
     private fun createBookList(bookList: RecyclerView) =

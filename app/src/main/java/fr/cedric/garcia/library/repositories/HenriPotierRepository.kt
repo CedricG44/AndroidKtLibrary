@@ -8,10 +8,10 @@ import kotlinx.coroutines.Deferred
 
 class HenriPotierRepository(private val service: HenriPotierService) {
 
-    suspend fun getBooks(): Either<Throwable, List<Book>> = callService(service.getBooks())
+    suspend fun getBooks(): Either<Throwable, List<Book>> = callService(service.getBooksAsync())
 
-    suspend fun getCommercialOffers(): Either<Throwable, List<CommercialOffer>> =
-        callService(service.getCommercialOffers())
+    suspend fun getCommercialOffers(isbn: List<String>): Either<Throwable, CommercialOffer> =
+        callService(service.getCommercialOffersAsync(isbn.joinToString(separator = ",")))
 
     private suspend fun <K> callService(deferred: Deferred<K>): Either<Throwable, K> {
         return try {
