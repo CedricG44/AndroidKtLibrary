@@ -1,23 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <fr.cedric.garcia.library.book.BookItemView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="10dp">
+    android:layout_margin="10dp"
 
-    <TextView
-        android:id="@+id/titleTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        tools:text="Garry Potier Tome 1" />
+    app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="5dp"
+    app:cardElevation="5dp">
 
-    <TextView
-        android:id="@+id/priceTextView"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        tools:text="15€" />
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            tools:text="Garry Potier Tome 1" />
+
+        <TextView
+            android:id="@+id/priceTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            tools:text="15€" />
+
+    </LinearLayout>
 
 </fr.cedric.garcia.library.book.BookItemView>
