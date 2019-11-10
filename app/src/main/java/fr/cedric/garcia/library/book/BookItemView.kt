@@ -27,7 +27,7 @@ class BookItemView @JvmOverloads constructor(
 
     fun bindView(book: Book) {
         titleView.text = book.title
-        priceView.text = book.price
+        priceView.text = "${book.price} €"
 
         Picasso.get().load(book.cover).into(coverImageView)
     }
