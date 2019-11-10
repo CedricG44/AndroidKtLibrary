@@ -11,12 +11,6 @@ import retrofit2.http.Path
 
 interface HenriPotierService {
 
-    @GET("books")
-    fun getBooksAsync(): Deferred<List<Book>>
-
-    @GET("books/{isbn}/commercialOffers")
-    fun getCommercialOffersAsync(@Path("isbn") isbn: String): Deferred<CommercialOffer>
-
     companion object {
         private const val baseUrl = "http://henri-potier.xebia.fr/"
         val service: HenriPotierService = Retrofit
@@ -27,4 +21,10 @@ interface HenriPotierService {
             .build()
             .create(HenriPotierService::class.java)
     }
+
+    @GET("books")
+    fun getBooksAsync(): Deferred<List<Book>>
+
+    @GET("books/{isbn}/commercialOffers")
+    fun getCommercialOffersAsync(@Path("isbn") isbn: String): Deferred<CommercialOffer>
 }

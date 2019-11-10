@@ -6,7 +6,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import fr.cedric.garcia.library.R
 
-class BookAdapter(context: Context, private val books: List<Book>) :
+class BookAdapter(
+    context: Context,
+    private val books: List<Book>,
+    private val bookClickListener: (Book, Int) -> Unit
+) :
     RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
 
     private val inflater = LayoutInflater.from(context)
@@ -25,6 +29,7 @@ class BookAdapter(context: Context, private val books: List<Book>) :
 
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
         holder.item.bindView(books[position])
+        holder.item.setOnClickListener { bookClickListener(books[position], position) }
     }
 
     class BookViewHolder(val item: BookItemView) : RecyclerView.ViewHolder(item)

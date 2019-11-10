@@ -1,5 +1,10 @@
 package fr.cedric.garcia.library.offer
 
-data class Offer(val type: String, val sliceValue: Number?, val value: Number)
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
-data class CommercialOffer(val offers: List<Offer>)
+@Parcelize
+data class Offer(val type: String, val sliceValue: Number?, val value: Number) : Parcelable
+
+@Parcelize
+data class CommercialOffer(val offers: List<Offer>) : Parcelable
