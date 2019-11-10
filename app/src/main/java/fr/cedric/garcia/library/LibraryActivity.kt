@@ -6,11 +6,11 @@ import androidx.appcompat.app.AppCompatActivity
 import fr.cedric.garcia.library.book.Book
 import fr.cedric.garcia.library.fragments.BookDetailsFragment
 import fr.cedric.garcia.library.fragments.BookListFragment
+import fr.cedric.garcia.library.offer.CommercialOffer
 import fr.cedric.garcia.library.repositories.HenriPotierRepository
 import fr.cedric.garcia.library.services.HenriPotierService
 import io.paperdb.Paper
 import kotlinx.coroutines.*
-
 
 class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsListener {
 
@@ -38,25 +38,6 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
         supportFragmentManager.beginTransaction()
             .replace(R.id.containerFrameLayout, fragment)
             .commit()
-
-        /*CoroutineScope(Dispatchers.Main).launch {
-            val offer = booksRepository.getCommercialOffers(
-                listOf(
-                    "c8fabf68-8374-48fe-a7ea-a00ccd07afff",
-                    "a460afed-e5e7-4e39-a39d-c885c05db861",
-                    "bbcee412-be64-4a0c-bf1e-315977acd924"
-                )
-            )
-
-            withContext(Dispatchers.IO) {
-                offer.fold({
-                    Log.e("getCommercialOffer", it.message, it)
-                }, {
-                    Log.d("offer", it.toString())
-                    it
-                })
-            }
-        }*/
     }
 
     override fun onOpenBookDetails(book: Book) {
@@ -82,6 +63,20 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
                     it.forEach { book ->
                         Log.d("book", book.toString())
                     }
+                    it
+                })
+            }
+        }
+
+    private suspend fun loadCommercialOffers(books: List<Book>): CommercialOffer =
+        coroutineScope {
+            val offers = async { booksRepository.getCommercialOffers(books.map { it.isbn }) }
+            withContext(Dispatchers.IO) {
+                offers.await().fold({
+                    Log.e("getCommercialOffers", it.message, it)
+                    CommercialOffer(emptyList())
+                }, {
+                    Log.d("offers", it.toString())
                     it
                 })
             }
