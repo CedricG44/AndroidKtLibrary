@@ -3,4 +3,5 @@
     <string name="add_to_cart">Ajouter au panier</string>
     <string name="book_added_to_cart">Livre ajouté au panier</string>
     <string name="synopsis_title">Synopsis</string>
+    <string name="no_book_selected">Aucun livre sélectionné</string>
 </resources>

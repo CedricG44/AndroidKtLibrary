@@ -2,7 +2,9 @@ package fr.cedric.garcia.library
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import fr.cedric.garcia.library.book.Book
 import fr.cedric.garcia.library.fragments.BookDetailsFragment
 import fr.cedric.garcia.library.fragments.BookListFragment
@@ -21,6 +23,8 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
 
     private val booksRepository = HenriPotierRepository(HenriPotierService.service)
     private lateinit var books: List<Book>
+    private var dualPane = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,16 +32,29 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
 
         Paper.init(this)
 
-        books = runBlocking { loadBookList() }
+        books = savedInstanceState?.getParcelableArrayList<Book>(BOOKS)?.toList()
+            ?: runBlocking { loadBookList() }
+        val offers = runBlocking { loadCommercialOffers(books) }
+
+        val detailsFrameLayout = findViewById<View>(R.id.bookDetailsContainerFrameLayout)
+        dualPane = detailsFrameLayout != null && detailsFrameLayout.visibility == View.VISIBLE
 
         val fragment = BookListFragment()
         val args = Bundle()
         args.putParcelableArrayList(BOOKS, ArrayList(books))
         fragment.arguments = args
 
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.containerFrameLayout, fragment)
-            .commit()
+        if (dualPane) {
+            replaceFrameLayout(R.id.bookListContainerFrameLayout, fragment)
+            replaceFrameLayout(R.id.bookDetailsContainerFrameLayout, BookDetailsFragment())
+        } else {
+            replaceFrameLayout(R.id.bookListContainerFrameLayout, fragment)
+        }
+    }
+
+    public override fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelableArrayList(BOOKS, ArrayList(books))
+        super.onSaveInstanceState(outState)
     }
 
     override fun onOpenBookDetails(book: Book) {
@@ -46,9 +63,19 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
         args.putParcelable(BOOK, book)
         fragment.arguments = args
 
+        if (dualPane) {
+            replaceFrameLayout(R.id.bookDetailsContainerFrameLayout, fragment)
+        } else {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.bookListContainerFrameLayout, fragment)
+                .addToBackStack(BookDetailsFragment::class.java.name)
+                .commit()
+        }
+    }
+
+    private fun replaceFrameLayout(id: Int, fragment: Fragment) {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.containerFrameLayout, fragment)
-            .addToBackStack(BookDetailsFragment::class.java.name)
+            .replace(id, fragment)
             .commit()
     }
 

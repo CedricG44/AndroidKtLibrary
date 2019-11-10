@@ -17,6 +17,7 @@ class BookDetailsFragment : Fragment() {
 
     private lateinit var titleView: TextView
     private lateinit var coverImageView: ImageView
+    private lateinit var synopsisTitleView: TextView
     private lateinit var synopsisView: TextView
     private lateinit var book: Book
 
@@ -27,17 +28,23 @@ class BookDetailsFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.book_details_fragment, container, false)
         book = arguments?.getParcelable(LibraryActivity.BOOK) ?: Book("", "", "", "", emptyList())
-        Log.d("BookDetailsFragment", book.toString())
 
         titleView = view.findViewById(R.id.detailsTitleTextView)
-        titleView.text = book.title
-
         coverImageView = view.findViewById(R.id.detailsCoverImageView)
-        Picasso.get().load(book.cover).into(coverImageView)
-
+        synopsisTitleView = view.findViewById(R.id.detailsSynopsisTitleTextView)
         synopsisView = view.findViewById(R.id.detailsSynopsisTextView)
-        book.synopsis.forEach {
-            synopsisView.text = "${synopsisView.text}\n\n$it"
+
+        if (!book.title.isBlank()) {
+            Log.d("BookDetailsFragment", book.toString())
+
+            titleView.text = book.title
+            Picasso.get().load(book.cover).into(coverImageView)
+            synopsisTitleView.text = getString(R.string.synopsis_title)
+            synopsisView.text = book.synopsis.reduce { acc, s ->
+                "$acc\n\n$s"
+            }
+        } else {
+            titleView.text = getString(R.string.no_book_selected)
         }
 
         return view
