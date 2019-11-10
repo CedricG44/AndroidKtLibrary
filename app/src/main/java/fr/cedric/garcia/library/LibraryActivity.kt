@@ -8,6 +8,7 @@ import fr.cedric.garcia.library.fragments.BookDetailsFragment
 import fr.cedric.garcia.library.fragments.BookListFragment
 import fr.cedric.garcia.library.repositories.HenriPotierRepository
 import fr.cedric.garcia.library.services.HenriPotierService
+import io.paperdb.Paper
 import kotlinx.coroutines.*
 
 
@@ -24,6 +25,8 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        Paper.init(this)
 
         books = runBlocking { loadBookList() }
 
