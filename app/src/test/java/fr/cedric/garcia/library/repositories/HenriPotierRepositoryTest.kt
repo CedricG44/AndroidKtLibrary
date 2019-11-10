@@ -2,6 +2,8 @@ package fr.cedric.garcia.library.repositories
 
 import arrow.core.Either
 import fr.cedric.garcia.library.book.Book
+import fr.cedric.garcia.library.offer.CommercialOffer
+import fr.cedric.garcia.library.offer.Offer
 import fr.cedric.garcia.library.services.HenriPotierService
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -23,15 +25,29 @@ class HenriPotierRepositoryTest {
             "c8fabf68-8374-48fe-a7ea-a00ccd07afff",
             "Henri Potier à l'école des sorciers",
             "35",
-            "http://henri-potier.xebia.fr/hp0.jpg"
+            "http://henri-potier.xebia.fr/hp0.jpg",
+            listOf("Description")
         ),
         Book(
             "a460afed-e5e7-4e39-a39d-c885c05db861",
             "Henri Potier et la Chambre des secrets",
             "30",
-            "http://henri-potier.xebia.fr/hp1.jpg"
+            "http://henri-potier.xebia.fr/hp1.jpg",
+            listOf("Description")
         )
     )
+
+    private val isbn = listOf(
+        "c8fabf68-8374-48fe-a7ea-a00ccd07afff",
+        "a460afed-e5e7-4e39-a39d-c885c05db861"
+    )
+
+    private val formattedIsbn = isbn.joinToString(separator = ",")
+
+    private val offers =
+        CommercialOffer(listOf(Offer("percentage", null, 10), Offer("minus", null, 5)))
+
+    private val exception = Exception("Error")
 
     @Before
     fun setUp() {
@@ -53,8 +69,43 @@ class HenriPotierRepositoryTest {
 
     @Test
     fun getListOfBooksError() {
-        val exception = Exception("Error")
         every { runBlocking { service.getBooksAsync().await() } } throws exception
         assertEquals(runBlocking { repository.getBooks() }, Either.left(exception))
+    }
+
+    @Test
+    fun getEmptyCommercialOffers() {
+        every {
+            runBlocking {
+                service.getCommercialOffersAsync(formattedIsbn).await()
+            }
+        } returns CommercialOffer(emptyList())
+        assertEquals(
+            runBlocking { repository.getCommercialOffers(isbn) },
+            Either.right(CommercialOffer(emptyList()))
+        )
+    }
+
+    @Test
+    fun getCommercialOffers() {
+        every {
+            runBlocking {
+                service.getCommercialOffersAsync(formattedIsbn).await()
+            }
+        } returns offers
+        assertEquals(
+            runBlocking { repository.getCommercialOffers(isbn) },
+            Either.right(offers)
+        )
+    }
+
+    @Test
+    fun getCommercialOffersError() {
+        every {
+            runBlocking {
+                service.getCommercialOffersAsync(formattedIsbn).await()
+            }
+        } throws exception
+        assertEquals(runBlocking { repository.getCommercialOffers(isbn) }, Either.left(exception))
     }
 }
