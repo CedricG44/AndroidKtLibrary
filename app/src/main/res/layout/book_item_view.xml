@@ -12,7 +12,7 @@
     app:cardCornerRadius="5dp"
     app:cardElevation="5dp">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -20,18 +20,25 @@
 
         <TextView
             android:id="@+id/titleTextView"
-            android:layout_width="0dp"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            tools:text="Garry Potier Tome 1" />
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true" />
 
         <TextView
             android:id="@+id/priceTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            tools:text="15€" />
+            android:layout_below="@+id/titleTextView"
+            android:layout_alignParentStart="true" />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/coverImageView"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:layout_alignParentEnd="true"
+            tools:ignore="ContentDescription" />
+
+    </RelativeLayout>
 
 </fr.cedric.garcia.library.book.BookItemView>
