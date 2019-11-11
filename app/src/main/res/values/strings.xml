@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Library</string>
+    <string name="app_name">Librairie</string>
     <string name="add_to_cart">Ajouter au panier</string>
     <string name="book_added_to_cart">Livre ajouté au panier</string>
     <string name="synopsis_title">Synopsis</string>

@@ -19,12 +19,15 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
     companion object {
         const val BOOK = "BOOK"
         const val BOOKS = "BOOKS"
+        const val LIST_FRAGMENT_TAG = "LIST_FRAGMENT_TAG"
+        const val DETAILS_FRAGMENT_TAG = "DETAILS_FRAGMENT_TAG"
     }
 
     private val booksRepository = HenriPotierRepository(HenriPotierService.service)
     private lateinit var books: List<Book>
+    private lateinit var listFragment: BookListFragment
+    private lateinit var detailsFragment: BookDetailsFragment
     private var dualPane = false
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,19 +39,28 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
             ?: runBlocking { loadBookList() }
         val offers = runBlocking { loadCommercialOffers(books) }
 
+        // Check dual-pane frame availability
         val detailsFrameLayout = findViewById<View>(R.id.bookDetailsContainerFrameLayout)
         dualPane = detailsFrameLayout != null && detailsFrameLayout.visibility == View.VISIBLE
 
-        val fragment = BookListFragment()
-        val args = Bundle()
-        args.putParcelableArrayList(BOOKS, ArrayList(books))
-        fragment.arguments = args
-
-        if (dualPane) {
-            replaceFrameLayout(R.id.bookListContainerFrameLayout, fragment)
-            replaceFrameLayout(R.id.bookDetailsContainerFrameLayout, BookDetailsFragment())
+        // Handle fragments states
+        detailsFragment = BookDetailsFragment()
+        listFragment = if (savedInstanceState == null) {
+            createListFragment(books)
         } else {
-            replaceFrameLayout(R.id.bookListContainerFrameLayout, fragment)
+            supportFragmentManager.findFragmentByTag(LIST_FRAGMENT_TAG) as BookListFragment
+        }
+
+        // Handle dual-pane horizontal mode
+        if (dualPane) {
+            replaceFrameLayout(R.id.bookListContainerFrameLayout, listFragment, LIST_FRAGMENT_TAG)
+            replaceFrameLayout(
+                R.id.bookDetailsContainerFrameLayout,
+                detailsFragment,
+                DETAILS_FRAGMENT_TAG
+            )
+        } else {
+            replaceFrameLayout(R.id.bookListContainerFrameLayout, listFragment, LIST_FRAGMENT_TAG)
         }
     }
 
@@ -58,24 +70,41 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
     }
 
     override fun onOpenBookDetails(book: Book) {
-        val fragment = BookDetailsFragment()
-        val args = Bundle()
-        args.putParcelable(BOOK, book)
-        fragment.arguments = args
+        detailsFragment = createDetailsFragment(book)
 
         if (dualPane) {
-            replaceFrameLayout(R.id.bookDetailsContainerFrameLayout, fragment)
+            replaceFrameLayout(
+                R.id.bookDetailsContainerFrameLayout,
+                detailsFragment,
+                DETAILS_FRAGMENT_TAG
+            )
         } else {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.bookListContainerFrameLayout, fragment)
+                .add(R.id.bookListContainerFrameLayout, detailsFragment, DETAILS_FRAGMENT_TAG)
                 .addToBackStack(BookDetailsFragment::class.java.name)
                 .commit()
         }
     }
 
-    private fun replaceFrameLayout(id: Int, fragment: Fragment) {
+    private fun createListFragment(books: List<Book>): BookListFragment {
+        val fragment = BookListFragment()
+        val args = Bundle()
+        args.putParcelableArrayList(BOOKS, ArrayList(books))
+        fragment.arguments = args
+        return fragment
+    }
+
+    private fun createDetailsFragment(book: Book): BookDetailsFragment {
+        val fragment = BookDetailsFragment()
+        val args = Bundle()
+        args.putParcelable(BOOK, book)
+        fragment.arguments = args
+        return fragment
+    }
+
+    private fun replaceFrameLayout(id: Int, fragment: Fragment, tag: String) {
         supportFragmentManager.beginTransaction()
-            .replace(id, fragment)
+            .replace(id, fragment, tag)
             .commit()
     }
 
