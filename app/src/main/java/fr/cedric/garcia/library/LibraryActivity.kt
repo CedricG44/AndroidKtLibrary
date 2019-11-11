@@ -80,7 +80,7 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
             )
         } else {
             supportFragmentManager.beginTransaction()
-                .add(R.id.bookListContainerFrameLayout, detailsFragment, DETAILS_FRAGMENT_TAG)
+                .replace(R.id.bookListContainerFrameLayout, detailsFragment, DETAILS_FRAGMENT_TAG)
                 .addToBackStack(BookDetailsFragment::class.java.name)
                 .commit()
         }
