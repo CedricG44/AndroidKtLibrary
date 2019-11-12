@@ -9,6 +9,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 
+/**
+ * Books API service Retrofit interface.
+ */
 interface HenriPotierService {
 
     companion object {
@@ -21,9 +24,15 @@ interface HenriPotierService {
             .create(HenriPotierService::class.java)
     }
 
+    /**
+     * Get books.
+     */
     @GET("books")
     fun getBooksAsync(): Deferred<List<Book>>
 
+    /**
+     * Get commercial offers given a list of [isbn].
+     */
     @GET("books/{isbn}/commercialOffers")
     fun getCommercialOffersAsync(@Path("isbn") isbn: String): Deferred<CommercialOffer>
 }

@@ -13,6 +13,9 @@ import fr.cedric.garcia.library.LibraryActivity
 import fr.cedric.garcia.library.R
 import fr.cedric.garcia.library.book.Book
 
+/**
+ * Book details Fragment.
+ */
 class BookDetailsFragment : Fragment() {
 
     override fun onCreateView(
@@ -32,6 +35,7 @@ class BookDetailsFragment : Fragment() {
         if (!book.title.isBlank()) {
             Log.d("BookDetailsFragment", book.toString())
 
+            // Fill selected book description
             titleView.text = book.title
             Picasso.get().load(book.cover).into(coverImageView)
             synopsisTitleView.text = getString(R.string.synopsis_title)

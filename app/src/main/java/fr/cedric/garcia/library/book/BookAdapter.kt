@@ -6,6 +6,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import fr.cedric.garcia.library.R
 
+/**
+ * Book adapter for book RecyclerView.
+ */
 class BookAdapter(
     context: Context,
     private val books: List<Book>,
@@ -28,6 +31,7 @@ class BookAdapter(
     override fun getItemCount(): Int = books.count()
 
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
+        // Bind book item view and click listener
         holder.item.bindView(books[position])
         holder.item.setOnClickListener { bookClickListener(books[position]) }
     }

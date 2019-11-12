@@ -3,6 +3,9 @@ package fr.cedric.garcia.library.book
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
+/**
+ * Book model class.
+ */
 @Parcelize
 data class Book(
     val isbn: String,

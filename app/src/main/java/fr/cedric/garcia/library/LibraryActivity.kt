@@ -20,6 +20,9 @@ import fr.cedric.garcia.library.services.HenriPotierService
 import io.paperdb.Paper
 import kotlinx.coroutines.*
 
+/**
+ * Main Activity.
+ */
 class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsListener {
 
     companion object {
@@ -42,6 +45,7 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
         Paper.init(this)
         ShoppingCart.saveCart(emptyList<BookCartItem>().toMutableList())
 
+        // Handle saved book list and selected book
         books = savedInstanceState?.getParcelableArrayList<Book>(BOOKS)?.toList()
             ?: runBlocking { loadBookList() }
         selectedBook = savedInstanceState?.getParcelable<Book>(BOOK)?.some() ?: Option.empty()
@@ -82,6 +86,7 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle shopping cart button action
         return when (item.itemId) {
             R.id.shoppingCart -> {
                 startActivity(Intent(this, ShoppingCartActivity::class.java))
@@ -92,6 +97,7 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
+        // Save book list and selected book
         outState.putParcelableArrayList(BOOKS, ArrayList(books))
         selectedBook.fold({}, {
             outState.putParcelable(BOOK, it)
@@ -99,10 +105,14 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
         super.onSaveInstanceState(outState)
     }
 
+    /**
+     * Handle "open [book] details" event.
+     */
     override fun onOpenBookDetails(book: Book) {
         selectedBook = book.some()
         val detailsFragment = createDetailsFragment(book)
 
+        // Handle dual-pane horizontal mode
         if (dualPane) {
             replaceFrameLayout(
                 R.id.bookDetailsContainerFrameLayout,
@@ -117,6 +127,9 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
         }
     }
 
+    /**
+     * Create a BookListFragment given a list of [books].
+     */
     private fun createListFragment(books: List<Book>): BookListFragment {
         val fragment = BookListFragment()
         val args = Bundle()
@@ -125,6 +138,9 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
         return fragment
     }
 
+    /**
+     * Create a BookDetailsFragment given a [book].
+     */
     private fun createDetailsFragment(book: Book): BookDetailsFragment {
         val fragment = BookDetailsFragment()
         val args = Bundle()
@@ -133,12 +149,18 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
         return fragment
     }
 
+    /**
+     * Replace FrameLayout with [id] by [fragment] givent its [tag].
+     */
     private fun replaceFrameLayout(id: Int, fragment: Fragment, tag: String) {
         supportFragmentManager.beginTransaction()
             .replace(id, fragment, tag)
             .commit()
     }
 
+    /**
+     * Load book list from repository.
+     */
     private suspend fun loadBookList(): List<Book> =
         coroutineScope {
             val books = async { booksRepository.getBooks() }

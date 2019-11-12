@@ -6,6 +6,9 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import fr.cedric.garcia.library.R
 
+/**
+ * Book cart item CardView.
+ */
 class BookCartItemView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

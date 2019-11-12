@@ -6,6 +6,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import fr.cedric.garcia.library.R
 
+/**
+ * Book item adapter for shopping cart RecyclerView.
+ */
 class ShoppingCartAdapter(
     context: Context,
     private val bookItems: List<BookCartItem>
@@ -27,6 +30,7 @@ class ShoppingCartAdapter(
     override fun getItemCount(): Int = bookItems.count()
 
     override fun onBindViewHolder(holder: BookCartItemViewHolder, position: Int) {
+        // Bind book cart item view
         holder.item.bindView(bookItems[position])
     }
 

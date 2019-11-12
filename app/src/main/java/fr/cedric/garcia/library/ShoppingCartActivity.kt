@@ -21,6 +21,9 @@ import fr.cedric.garcia.library.services.HenriPotierService
 import kotlinx.coroutines.*
 import kotlin.math.roundToInt
 
+/**
+ * Shopping cart Activity.
+ */
 class ShoppingCartActivity : AppCompatActivity() {
 
     private val booksRepository = HenriPotierRepository(HenriPotierService.service)
@@ -31,9 +34,11 @@ class ShoppingCartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.shopping_cart_activity)
 
+        // Load commercial offers
         offers = runBlocking { loadCommercialOffers(ShoppingCart.getCart().map { it.book }) }
         totalPriceWithoutOffer = totalPrice()
 
+        // Setup RecyclerView
         val shoppingCartRecyclerView = findViewById<RecyclerView>(R.id.shoppingCartView)
         shoppingCartRecyclerView.layoutManager = LinearLayoutManager(this)
         shoppingCartRecyclerView.adapter = ShoppingCartAdapter(this, ShoppingCart.getCart())
@@ -44,6 +49,7 @@ class ShoppingCartActivity : AppCompatActivity() {
 
         totalPriceWithoutOfferText.text = getString(R.string.price, totalPriceWithoutOffer)
 
+        // Setup commercial offers dropdown menu
         val offersSpinner = findViewById<Spinner>(R.id.commercialOffersSpinner)
         offersSpinner.adapter = ArrayAdapter<String>(
             this,
@@ -51,6 +57,7 @@ class ShoppingCartActivity : AppCompatActivity() {
             formatOffers(offers)
         )
 
+        // Setup commercial offer click listener
         offersSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
@@ -61,6 +68,7 @@ class ShoppingCartActivity : AppCompatActivity() {
                 val selectedOffer = offers.offers[position]
                 Log.d("selectedOffer", selectedOffer.toString())
 
+                // Update total price
                 val offer = calculateOffer(selectedOffer)
                 effectiveOfferText.text = getString(R.string.price, offer)
                 totalPriceText.text = getString(R.string.price, totalPriceWithoutOffer - offer)
@@ -70,10 +78,16 @@ class ShoppingCartActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Calculate total price base on shopping cart current state.
+     */
     private fun totalPrice(): Double =
         ShoppingCart.getCart()
             .fold(0.toDouble()) { acc, cartItem -> acc + cartItem.quantity.times(cartItem.book.price.toDouble()) }
 
+    /**
+     * Calculate effective price giventan [offer].
+     */
     private fun calculateOffer(offer: Offer): Double =
         when (offer.type) {
             "minus" -> offer.value.toDouble()
@@ -82,6 +96,9 @@ class ShoppingCartActivity : AppCompatActivity() {
             else -> totalPriceWithoutOffer
         }
 
+    /**
+     * Format commercial [offers] with their specific denominations.
+     */
     private fun formatOffers(offers: CommercialOffer): List<String> =
         offers.offers.map {
             when (it.type) {
@@ -92,6 +109,9 @@ class ShoppingCartActivity : AppCompatActivity() {
             }
         }
 
+    /**
+     * Load commercial offers from repository given a list of [books].
+     */
     private suspend fun loadCommercialOffers(books: List<Book>): CommercialOffer =
         coroutineScope {
             val offers = async { booksRepository.getCommercialOffers(books.map { it.isbn }) }

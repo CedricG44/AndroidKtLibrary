@@ -5,11 +5,17 @@ import arrow.core.Option
 import fr.cedric.garcia.library.book.Book
 import io.paperdb.Paper
 
+/**
+ * Library shopping cart.
+ */
 class ShoppingCart {
 
     companion object {
         private const val CART = "CART"
 
+        /**
+         * Add a [bookCartItem] to the cart.
+         */
         fun addItem(bookCartItem: BookCartItem) {
             val cart = getCart()
 
@@ -24,6 +30,9 @@ class ShoppingCart {
             saveCart(cart)
         }
 
+        /**
+         * Remove a [bookCartItem] from the cart.
+         */
         fun removeItem(bookCartItem: BookCartItem) {
             val cart = getCart()
 
@@ -39,18 +48,30 @@ class ShoppingCart {
             saveCart(cart)
         }
 
+        /**
+         * Get current cart state.
+         */
         fun getCart(): MutableList<BookCartItem> {
             return Paper.book().read(CART, mutableListOf())
         }
 
+        /**
+         * Get a specific [book] from the cart. May be absent.
+         */
         fun getCartItem(book: Book): Option<BookCartItem> =
             Option.fromNullable(getCart().singleOrNull { it.book.isbn == book.isbn })
 
+        /**
+         * Override current cart state.
+         */
         fun saveCart(cart: MutableList<BookCartItem>) {
             Paper.book().write(CART, cart)
             Log.d("cart", getCart().toString())
         }
 
+        /**
+         * Get current cart size.
+         */
         fun getCartSize(): Int {
             var size = 0
             getCart().forEach {

@@ -14,6 +14,9 @@ import fr.cedric.garcia.library.R
 import fr.cedric.garcia.library.book.Book
 import fr.cedric.garcia.library.book.BookAdapter
 
+/**
+ * Book list Fragment.
+ */
 class BookListFragment : Fragment() {
 
     private lateinit var listener: OnOpenBookDetailsListener
@@ -34,6 +37,7 @@ class BookListFragment : Fragment() {
         val books =
             arguments?.getParcelableArrayList<Book>(LibraryActivity.BOOKS)?.toList() ?: emptyList()
 
+        // Setup RecyclerView and CardView click listener
         val bookListRecyclerView = view.findViewById<RecyclerView>(R.id.bookListView)
         bookListRecyclerView.layoutManager = LinearLayoutManager(bookListContext)
         bookListRecyclerView.adapter =
@@ -45,6 +49,9 @@ class BookListFragment : Fragment() {
         return view
     }
 
+    /**
+     * Open book details event handler interface.
+     */
     interface OnOpenBookDetailsListener {
         fun onOpenBookDetails(book: Book)
     }

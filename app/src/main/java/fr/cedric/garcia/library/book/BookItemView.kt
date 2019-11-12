@@ -12,6 +12,9 @@ import fr.cedric.garcia.library.R
 import fr.cedric.garcia.library.cart.BookCartItem
 import fr.cedric.garcia.library.cart.ShoppingCart
 
+/**
+ * Book item CardView.
+ */
 class BookItemView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
