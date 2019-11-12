@@ -2,7 +2,7 @@ package fr.cedric.garcia.library.services
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import fr.cedric.garcia.library.book.Book
-import fr.cedric.garcia.library.offer.CommercialOffer
+import fr.cedric.garcia.library.book.CommercialOffer
 import kotlinx.coroutines.Deferred
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

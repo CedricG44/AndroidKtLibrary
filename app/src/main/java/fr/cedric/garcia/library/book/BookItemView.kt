@@ -2,15 +2,15 @@ package fr.cedric.garcia.library.book
 
 import android.content.Context
 import android.util.AttributeSet
-import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import com.squareup.picasso.Picasso
 import fr.cedric.garcia.library.R
-import fr.cedric.garcia.library.offer.BookCartItem
-import fr.cedric.garcia.library.offer.ShoppingCart
+import fr.cedric.garcia.library.cart.BookCartItem
+import fr.cedric.garcia.library.cart.ShoppingCart
 
 class BookItemView @JvmOverloads constructor(
     context: Context,
@@ -21,7 +21,7 @@ class BookItemView @JvmOverloads constructor(
     private lateinit var titleView: TextView
     private lateinit var priceView: TextView
     private lateinit var coverImageView: ImageView
-    private lateinit var addToCartButton: Button
+    private lateinit var addToCartButton: ImageButton
 
     override fun onFinishInflate() {
         super.onFinishInflate()
@@ -36,7 +36,7 @@ class BookItemView @JvmOverloads constructor(
         priceView.text = "${book.price} €"
 
         addToCartButton.setOnClickListener {
-            ShoppingCart.addItem(BookCartItem(book, 1))
+            ShoppingCart.addItem(BookCartItem(book))
             Toast.makeText(context, R.string.book_added_to_cart, Toast.LENGTH_SHORT).show()
         }
 

@@ -1,4 +1,4 @@
-package fr.cedric.garcia.library.offer
+package fr.cedric.garcia.library.book
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize

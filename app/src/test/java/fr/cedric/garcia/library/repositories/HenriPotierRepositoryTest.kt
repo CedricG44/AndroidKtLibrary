@@ -2,8 +2,8 @@ package fr.cedric.garcia.library.repositories
 
 import arrow.core.Either
 import fr.cedric.garcia.library.book.Book
-import fr.cedric.garcia.library.offer.CommercialOffer
-import fr.cedric.garcia.library.offer.Offer
+import fr.cedric.garcia.library.book.CommercialOffer
+import fr.cedric.garcia.library.book.Offer
 import fr.cedric.garcia.library.services.HenriPotierService
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -45,7 +45,15 @@ class HenriPotierRepositoryTest {
     private val formattedIsbn = isbn.joinToString(separator = ",")
 
     private val offers =
-        CommercialOffer(listOf(Offer("percentage", null, 10), Offer("minus", null, 5)))
+        CommercialOffer(
+            listOf(
+                Offer(
+                    "percentage",
+                    null,
+                    10
+                ), Offer("minus", null, 5)
+            )
+        )
 
     private val exception = Exception("Error")
 

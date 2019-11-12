@@ -2,7 +2,7 @@ package fr.cedric.garcia.library.repositories
 
 import arrow.core.Either
 import fr.cedric.garcia.library.book.Book
-import fr.cedric.garcia.library.offer.CommercialOffer
+import fr.cedric.garcia.library.book.CommercialOffer
 import fr.cedric.garcia.library.services.HenriPotierService
 import kotlinx.coroutines.Deferred
 

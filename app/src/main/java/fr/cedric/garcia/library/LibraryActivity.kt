@@ -1,14 +1,18 @@
 package fr.cedric.garcia.library
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import fr.cedric.garcia.library.book.Book
 import fr.cedric.garcia.library.fragments.BookDetailsFragment
 import fr.cedric.garcia.library.fragments.BookListFragment
-import fr.cedric.garcia.library.offer.CommercialOffer
+import fr.cedric.garcia.library.book.CommercialOffer
 import fr.cedric.garcia.library.repositories.HenriPotierRepository
 import fr.cedric.garcia.library.services.HenriPotierService
 import io.paperdb.Paper
@@ -61,6 +65,22 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
             )
         } else {
             replaceFrameLayout(R.id.bookListContainerFrameLayout, listFragment, LIST_FRAGMENT_TAG)
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.shoppingCart -> {
+                startActivity(Intent(this, ShoppingCartActivity::class.java))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

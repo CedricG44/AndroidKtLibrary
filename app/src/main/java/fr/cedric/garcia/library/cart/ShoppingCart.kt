@@ -1,7 +1,9 @@
-package fr.cedric.garcia.library.offer
+package fr.cedric.garcia.library.cart
 
 import android.content.Context
 import android.util.Log
+import arrow.core.Option
+import fr.cedric.garcia.library.book.Book
 import io.paperdb.Paper
 
 class ShoppingCart {
@@ -40,6 +42,11 @@ class ShoppingCart {
 
         fun getCart(): MutableList<BookCartItem> {
             return Paper.book().read(CART, mutableListOf())
+        }
+
+        fun getCartItem(book: Book): Option<BookCartItem> {
+            val cart = getCart()
+            return Option.fromNullable(cart.singleOrNull { it.book.isbn == book.isbn })
         }
 
         fun saveCart(cart: MutableList<BookCartItem>) {

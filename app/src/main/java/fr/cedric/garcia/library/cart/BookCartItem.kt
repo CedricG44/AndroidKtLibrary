@@ -1,4 +1,4 @@
-package fr.cedric.garcia.library.offer
+package fr.cedric.garcia.library.cart
 
 import fr.cedric.garcia.library.book.Book
 
