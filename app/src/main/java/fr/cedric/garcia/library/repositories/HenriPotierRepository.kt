@@ -11,7 +11,7 @@ class HenriPotierRepository(private val service: HenriPotierService) {
     suspend fun getBooks(): Either<Throwable, List<Book>> = callService(service.getBooksAsync())
 
     suspend fun getCommercialOffers(isbn: List<String>): Either<Throwable, CommercialOffer> =
-        callService(service.getCommercialOffersAsync(isbn.joinToString(separator = ",")))
+        callService(service.getCommercialOffersAsync(isbn.joinToString(",")))
 
     private suspend fun <K> callService(deferred: Deferred<K>): Either<Throwable, K> {
         return try {

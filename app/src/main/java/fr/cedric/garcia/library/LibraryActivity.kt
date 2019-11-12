@@ -4,12 +4,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import arrow.core.Option
+import arrow.core.some
 import fr.cedric.garcia.library.book.Book
+import fr.cedric.garcia.library.cart.BookCartItem
+import fr.cedric.garcia.library.cart.ShoppingCart
 import fr.cedric.garcia.library.fragments.BookDetailsFragment
 import fr.cedric.garcia.library.fragments.BookListFragment
 import fr.cedric.garcia.library.repositories.HenriPotierRepository
@@ -27,31 +30,38 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
     }
 
     private val booksRepository = HenriPotierRepository(HenriPotierService.service)
-    private lateinit var books: List<Book>
-    private lateinit var listFragment: BookListFragment
-    private lateinit var detailsFragment: BookDetailsFragment
-    private var dualPane = false
+    private var books: List<Book> = emptyList()
+    private var selectedBook: Option<Book> = Option.empty()
+    private var dualPane: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Init and empty cart
         Paper.init(this)
+        ShoppingCart.saveCart(emptyList<BookCartItem>().toMutableList())
 
         books = savedInstanceState?.getParcelableArrayList<Book>(BOOKS)?.toList()
             ?: runBlocking { loadBookList() }
+        selectedBook = savedInstanceState?.getParcelable<Book>(BOOK)?.some() ?: Option.empty()
 
         // Check dual-pane frame availability
         val detailsFrameLayout = findViewById<View>(R.id.bookDetailsContainerFrameLayout)
         dualPane = detailsFrameLayout != null && detailsFrameLayout.visibility == View.VISIBLE
 
         // Handle fragments states
-        detailsFragment = BookDetailsFragment()
-        listFragment = if (savedInstanceState == null) {
+        val listFragment = if (savedInstanceState == null) {
             createListFragment(books)
         } else {
             supportFragmentManager.findFragmentByTag(LIST_FRAGMENT_TAG) as BookListFragment
         }
+
+        val detailsFragment = selectedBook.fold({
+            BookDetailsFragment()
+        }, {
+            createDetailsFragment(it)
+        })
 
         // Handle dual-pane horizontal mode
         if (dualPane) {
@@ -67,8 +77,7 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater: MenuInflater = menuInflater
-        inflater.inflate(R.menu.menu, menu)
+        menuInflater.inflate(R.menu.menu, menu)
         return true
     }
 
@@ -84,11 +93,15 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putParcelableArrayList(BOOKS, ArrayList(books))
+        selectedBook.fold({}, {
+            outState.putParcelable(BOOK, it)
+        })
         super.onSaveInstanceState(outState)
     }
 
     override fun onOpenBookDetails(book: Book) {
-        detailsFragment = createDetailsFragment(book)
+        selectedBook = book.some()
+        val detailsFragment = createDetailsFragment(book)
 
         if (dualPane) {
             replaceFrameLayout(

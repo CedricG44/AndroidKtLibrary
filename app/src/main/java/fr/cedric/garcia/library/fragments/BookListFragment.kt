@@ -18,7 +18,6 @@ class BookListFragment : Fragment() {
 
     private lateinit var listener: OnOpenBookDetailsListener
     private lateinit var bookListContext: Context
-    private lateinit var books: List<Book>
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -32,14 +31,14 @@ class BookListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.book_list_fragment, container, false)
-        books =
+        val books =
             arguments?.getParcelableArrayList<Book>(LibraryActivity.BOOKS)?.toList() ?: emptyList()
 
         val bookListRecyclerView = view.findViewById<RecyclerView>(R.id.bookListView)
         bookListRecyclerView.layoutManager = LinearLayoutManager(bookListContext)
         bookListRecyclerView.adapter =
-            BookAdapter(bookListContext, books) { book: Book, position: Int ->
-                Log.d("BookListFragment", "Clicked on book  $book at position $position")
+            BookAdapter(bookListContext, books) { book ->
+                Log.d("BookListFragment", "Clicked on book  $book")
                 listener.onOpenBookDetails(book)
             }
 

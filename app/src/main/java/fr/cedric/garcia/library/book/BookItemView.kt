@@ -35,11 +35,11 @@ class BookItemView @JvmOverloads constructor(
         titleView.text = book.title
         priceView.text = "${book.price} €"
 
+        Picasso.get().load(book.cover).into(coverImageView)
+
         addToCartButton.setOnClickListener {
             ShoppingCart.addItem(BookCartItem(book))
             Toast.makeText(context, R.string.book_added_to_cart, Toast.LENGTH_SHORT).show()
         }
-
-        Picasso.get().load(book.cover).into(coverImageView)
     }
 }

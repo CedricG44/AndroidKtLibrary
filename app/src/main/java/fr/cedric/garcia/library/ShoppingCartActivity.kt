@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fr.cedric.garcia.library.book.Book
 import fr.cedric.garcia.library.book.CommercialOffer
+import fr.cedric.garcia.library.book.Offer
 import fr.cedric.garcia.library.cart.ShoppingCart
 import fr.cedric.garcia.library.cart.ShoppingCartAdapter
 import fr.cedric.garcia.library.repositories.HenriPotierRepository
@@ -23,31 +24,27 @@ import kotlin.math.roundToInt
 class ShoppingCartActivity : AppCompatActivity() {
 
     private val booksRepository = HenriPotierRepository(HenriPotierService.service)
-    private lateinit var offers: CommercialOffer
-    private lateinit var totalPriceWithoutOfferText: TextView
-    private lateinit var effectiveOfferText: TextView
-    private lateinit var totalPriceText: TextView
-    private lateinit var offersSpinner: Spinner
+    private var offers: CommercialOffer = CommercialOffer(emptyList())
     private var totalPriceWithoutOffer: Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.shopping_cart_activity)
 
+        offers = runBlocking { loadCommercialOffers(ShoppingCart.getCart().map { it.book }) }
+        totalPriceWithoutOffer = totalPrice()
+
         val shoppingCartRecyclerView = findViewById<RecyclerView>(R.id.shoppingCartView)
         shoppingCartRecyclerView.layoutManager = LinearLayoutManager(this)
         shoppingCartRecyclerView.adapter = ShoppingCartAdapter(this, ShoppingCart.getCart())
 
-        totalPriceWithoutOfferText = findViewById(R.id.cartTotalPriceWithoutOffer)
-        effectiveOfferText = findViewById(R.id.cartEffectiveOffer)
-        totalPriceText = findViewById(R.id.cartTotalPrice)
+        val totalPriceWithoutOfferText = findViewById<TextView>(R.id.cartTotalPriceWithoutOffer)
+        val effectiveOfferText = findViewById<TextView>(R.id.cartEffectiveOffer)
+        val totalPriceText = findViewById<TextView>(R.id.cartTotalPrice)
 
-        totalPriceWithoutOffer = totalPrice()
         totalPriceWithoutOfferText.text = getString(R.string.price, totalPriceWithoutOffer)
 
-        offers = runBlocking { loadCommercialOffers(ShoppingCart.getCart().map { it.book }) }
-
-        offersSpinner = findViewById(R.id.commercialOffersSpinner)
+        val offersSpinner = findViewById<Spinner>(R.id.commercialOffersSpinner)
         offersSpinner.adapter = ArrayAdapter<String>(
             this,
             R.layout.support_simple_spinner_dropdown_item,
@@ -61,8 +58,12 @@ class ShoppingCartActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-                Log.d("selectedOffer", offers.offers[position].toString())
-                updateTotalPriceWithOffer(position)
+                val selectedOffer = offers.offers[position]
+                Log.d("selectedOffer", selectedOffer.toString())
+
+                val offer = calculateOffer(selectedOffer)
+                effectiveOfferText.text = getString(R.string.price, offer)
+                totalPriceText.text = getString(R.string.price, totalPriceWithoutOffer - offer)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -73,17 +74,13 @@ class ShoppingCartActivity : AppCompatActivity() {
         ShoppingCart.getCart()
             .fold(0.toDouble()) { acc, cartItem -> acc + cartItem.quantity.times(cartItem.book.price.toDouble()) }
 
-    private fun updateTotalPriceWithOffer(offerPosition: Int) {
-        val offer = offers.offers[offerPosition]
-        val effectiveOffer = when (offer.type) {
+    private fun calculateOffer(offer: Offer): Double =
+        when (offer.type) {
             "minus" -> offer.value.toDouble()
             "percentage" -> ((totalPriceWithoutOffer / 100) * offer.value)
             "slice" -> ((totalPriceWithoutOffer / offer.sliceValue!!).roundToInt() * offer.value).toDouble()
             else -> totalPriceWithoutOffer
         }
-        effectiveOfferText.text = getString(R.string.price, effectiveOffer)
-        totalPriceText.text = getString(R.string.price, totalPriceWithoutOffer - effectiveOffer)
-    }
 
     private fun formatOffers(offers: CommercialOffer): List<String> =
         offers.offers.map {

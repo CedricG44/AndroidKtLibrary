@@ -15,24 +15,19 @@ import fr.cedric.garcia.library.book.Book
 
 class BookDetailsFragment : Fragment() {
 
-    private lateinit var titleView: TextView
-    private lateinit var coverImageView: ImageView
-    private lateinit var synopsisTitleView: TextView
-    private lateinit var synopsisView: TextView
-    private lateinit var book: Book
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.book_details_fragment, container, false)
-        book = arguments?.getParcelable(LibraryActivity.BOOK) ?: Book("", "", "", "", emptyList())
+        val book =
+            arguments?.getParcelable(LibraryActivity.BOOK) ?: Book("", "", "", "", emptyList())
 
-        titleView = view.findViewById(R.id.detailsTitleTextView)
-        coverImageView = view.findViewById(R.id.detailsCoverImageView)
-        synopsisTitleView = view.findViewById(R.id.detailsSynopsisTitleTextView)
-        synopsisView = view.findViewById(R.id.detailsSynopsisTextView)
+        val titleView = view.findViewById<TextView>(R.id.detailsTitleTextView)
+        val coverImageView = view.findViewById<ImageView>(R.id.detailsCoverImageView)
+        val synopsisTitleView = view.findViewById<TextView>(R.id.detailsSynopsisTitleTextView)
+        val synopsisView = view.findViewById<TextView>(R.id.detailsSynopsisTextView)
 
         if (!book.title.isBlank()) {
             Log.d("BookDetailsFragment", book.toString())
@@ -40,9 +35,7 @@ class BookDetailsFragment : Fragment() {
             titleView.text = book.title
             Picasso.get().load(book.cover).into(coverImageView)
             synopsisTitleView.text = getString(R.string.synopsis_title)
-            synopsisView.text = book.synopsis.reduce { acc, s ->
-                "$acc\n\n$s"
-            }
+            synopsisView.text = book.synopsis.joinToString("\n\n")
         } else {
             titleView.text = getString(R.string.no_book_selected)
         }
