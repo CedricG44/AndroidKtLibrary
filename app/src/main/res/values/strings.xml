@@ -5,4 +5,13 @@
     <string name="synopsis_title">Synopsis</string>
     <string name="no_book_selected">Aucun livre sélectionné</string>
     <string name="shopping_cart">ShoppingCart</string>
+    <string name="offer_minus">%1d € de réduction sur le total</string>
+    <string name="offer_percentage">%1d %% de réduction sur le total</string>
+    <string name="offer_slice">%1d € de réduction tous les %2d € d\'achats</string>
+    <string name="offer_empty">Aucune promotion disponible</string>
+    <string name="price">%1$.2f €</string>
+    <string name="select_offer">Sélectionner une promotion :</string>
+    <string name="total_without_offer">Total avant remise :</string>
+    <string name="effective_offer">Remise :</string>
+    <string name="total_price">Total :</string>
 </resources>

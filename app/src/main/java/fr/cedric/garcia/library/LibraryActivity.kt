@@ -82,7 +82,7 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
         }
     }
 
-    public override fun onSaveInstanceState(outState: Bundle) {
+    override fun onSaveInstanceState(outState: Bundle) {
         outState.putParcelableArrayList(BOOKS, ArrayList(books))
         super.onSaveInstanceState(outState)
     }
