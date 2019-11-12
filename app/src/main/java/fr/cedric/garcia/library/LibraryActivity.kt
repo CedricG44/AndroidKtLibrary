@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment
 import fr.cedric.garcia.library.book.Book
 import fr.cedric.garcia.library.fragments.BookDetailsFragment
 import fr.cedric.garcia.library.fragments.BookListFragment
-import fr.cedric.garcia.library.book.CommercialOffer
 import fr.cedric.garcia.library.repositories.HenriPotierRepository
 import fr.cedric.garcia.library.services.HenriPotierService
 import io.paperdb.Paper
@@ -41,7 +40,6 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
 
         books = savedInstanceState?.getParcelableArrayList<Book>(BOOKS)?.toList()
             ?: runBlocking { loadBookList() }
-        val offers = runBlocking { loadCommercialOffers(books) }
 
         // Check dual-pane frame availability
         val detailsFrameLayout = findViewById<View>(R.id.bookDetailsContainerFrameLayout)
@@ -139,20 +137,6 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
                     it.forEach { book ->
                         Log.d("book", book.toString())
                     }
-                    it
-                })
-            }
-        }
-
-    private suspend fun loadCommercialOffers(books: List<Book>): CommercialOffer =
-        coroutineScope {
-            val offers = async { booksRepository.getCommercialOffers(books.map { it.isbn }) }
-            withContext(Dispatchers.IO) {
-                offers.await().fold({
-                    Log.e("getCommercialOffers", it.message, it)
-                    CommercialOffer(emptyList())
-                }, {
-                    Log.d("offers", it.toString())
                     it
                 })
             }
