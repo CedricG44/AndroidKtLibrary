@@ -12,10 +12,9 @@ import retrofit2.http.Path
 interface HenriPotierService {
 
     companion object {
-        private const val baseUrl = "http://henri-potier.xebia.fr/"
         val service: HenriPotierService = Retrofit
             .Builder()
-            .baseUrl(baseUrl)
+            .baseUrl("http://henri-potier.xebia.fr/")
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build()

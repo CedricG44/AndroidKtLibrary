@@ -20,7 +20,6 @@ import fr.cedric.garcia.library.services.HenriPotierService
 import kotlinx.coroutines.*
 import kotlin.math.roundToInt
 
-
 class ShoppingCartActivity : AppCompatActivity() {
 
     private val booksRepository = HenriPotierRepository(HenriPotierService.service)
