@@ -11,8 +11,6 @@ import androidx.fragment.app.Fragment
 import arrow.core.Option
 import arrow.core.some
 import fr.cedric.garcia.library.book.Book
-import fr.cedric.garcia.library.cart.BookCartItem
-import fr.cedric.garcia.library.cart.ShoppingCart
 import fr.cedric.garcia.library.fragments.BookDetailsFragment
 import fr.cedric.garcia.library.fragments.BookListFragment
 import fr.cedric.garcia.library.repositories.HenriPotierRepository
@@ -41,9 +39,8 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Init and empty cart
+        // Init cart
         Paper.init(this)
-        ShoppingCart.saveCart(emptyList<BookCartItem>().toMutableList())
 
         // Handle saved book list and selected book
         books = savedInstanceState?.getParcelableArrayList<Book>(BOOKS)?.toList()
