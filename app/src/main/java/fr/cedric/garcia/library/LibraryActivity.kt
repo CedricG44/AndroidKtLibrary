@@ -147,7 +147,7 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
     }
 
     /**
-     * Replace FrameLayout with [id] by [fragment] givent its [tag].
+     * Replace FrameLayout with [id] by [fragment] given its [tag].
      */
     private fun replaceFrameLayout(id: Int, fragment: Fragment, tag: String) {
         supportFragmentManager.beginTransaction()
