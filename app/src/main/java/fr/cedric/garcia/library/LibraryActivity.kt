@@ -8,6 +8,8 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import arrow.core.Option
 import arrow.core.some
 import fr.cedric.garcia.library.book.Book
@@ -31,50 +33,68 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
     }
 
     private val booksRepository = HenriPotierRepository(HenriPotierService.service)
-    private var books: List<Book> = emptyList()
+    private var books: MutableLiveData<List<Book>> = MutableLiveData()
     private var selectedBook: Option<Book> = Option.empty()
     private var dualPane: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        books.postValue(emptyList())
 
         // Init cart
         Paper.init(this)
 
-        // Handle saved book list and selected book
-        books = savedInstanceState?.getParcelableArrayList<Book>(BOOKS)?.toList()
-            ?: runBlocking { loadBookList() }
-        selectedBook = savedInstanceState?.getParcelable<Book>(BOOK)?.some() ?: Option.empty()
-
-        // Check dual-pane frame availability
-        val detailsFrameLayout = findViewById<View>(R.id.bookDetailsContainerFrameLayout)
-        dualPane = detailsFrameLayout != null && detailsFrameLayout.visibility == View.VISIBLE
-
-        // Handle fragments states
-        val listFragment = if (savedInstanceState == null) {
-            createListFragment(books)
-        } else {
-            supportFragmentManager.findFragmentByTag(LIST_FRAGMENT_TAG) as BookListFragment
+        // Handle saved book list
+        savedInstanceState?.getParcelableArrayList<Book>(BOOKS)?.let {
+            books.postValue(it.toList())
+        } ?: run {
+            loadBookList()
         }
 
-        val detailsFragment = selectedBook.fold({
-            BookDetailsFragment()
-        }, {
-            createDetailsFragment(it)
+        books.observe(this, Observer { books ->
+            // Handle saved selected book
+            savedInstanceState?.getParcelable<Book>(BOOK)?.let {
+                selectedBook = it.some()
+            }
+
+            // Check dual-pane frame availability
+            val detailsFrameLayout = findViewById<View>(R.id.bookDetailsContainerFrameLayout)
+            dualPane = detailsFrameLayout != null && detailsFrameLayout.visibility == View.VISIBLE
+
+            // Handle fragments states
+            val listFragment = if (savedInstanceState == null) {
+                createListFragment(books)
+            } else {
+                supportFragmentManager.findFragmentByTag(LIST_FRAGMENT_TAG) as BookListFragment
+            }
+
+            val detailsFragment = selectedBook.fold({
+                BookDetailsFragment()
+            }, {
+                createDetailsFragment(it)
+            })
+
+            // Handle dual-pane horizontal mode
+            if (dualPane) {
+                replaceFrameLayout(
+                    R.id.bookListContainerFrameLayout,
+                    listFragment,
+                    LIST_FRAGMENT_TAG
+                )
+                replaceFrameLayout(
+                    R.id.bookDetailsContainerFrameLayout,
+                    detailsFragment,
+                    DETAILS_FRAGMENT_TAG
+                )
+            } else {
+                replaceFrameLayout(
+                    R.id.bookListContainerFrameLayout,
+                    listFragment,
+                    LIST_FRAGMENT_TAG
+                )
+            }
         })
-
-        // Handle dual-pane horizontal mode
-        if (dualPane) {
-            replaceFrameLayout(R.id.bookListContainerFrameLayout, listFragment, LIST_FRAGMENT_TAG)
-            replaceFrameLayout(
-                R.id.bookDetailsContainerFrameLayout,
-                detailsFragment,
-                DETAILS_FRAGMENT_TAG
-            )
-        } else {
-            replaceFrameLayout(R.id.bookListContainerFrameLayout, listFragment, LIST_FRAGMENT_TAG)
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -95,7 +115,9 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
 
     override fun onSaveInstanceState(outState: Bundle) {
         // Save book list and selected book
-        outState.putParcelableArrayList(BOOKS, ArrayList(books))
+        books.value?.let {
+            outState.putParcelableArrayList(BOOKS, ArrayList(it))
+        }
         selectedBook.fold({}, {
             outState.putParcelable(BOOK, it)
         })
@@ -158,18 +180,17 @@ class LibraryActivity : AppCompatActivity(), BookListFragment.OnOpenBookDetailsL
     /**
      * Load book list from repository.
      */
-    private suspend fun loadBookList(): List<Book> =
-        coroutineScope {
-            val books = async { booksRepository.getBooks() }
+    private fun loadBookList(): Job =
+        CoroutineScope(Dispatchers.Main).launch {
+            val booksResult = booksRepository.getBooks()
             withContext(Dispatchers.IO) {
-                books.await().fold({
+                booksResult.fold({
                     Log.e("getBooks", it.message, it)
-                    emptyList<Book>()
                 }, {
+                    books.postValue(it)
                     it.forEach { book ->
                         Log.d("book", book.toString())
                     }
-                    it
                 })
             }
         }

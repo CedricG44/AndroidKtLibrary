@@ -9,6 +9,8 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fr.cedric.garcia.library.book.Book
@@ -27,15 +29,16 @@ import kotlin.math.roundToInt
 class ShoppingCartActivity : AppCompatActivity() {
 
     private val booksRepository = HenriPotierRepository(HenriPotierService.service)
-    private var offers: CommercialOffer = CommercialOffer(emptyList())
+    private var offers: MutableLiveData<CommercialOffer> = MutableLiveData()
     private var totalPriceWithoutOffer: Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.shopping_cart_activity)
+        offers.postValue(CommercialOffer(emptyList()))
 
         // Load commercial offers
-        offers = runBlocking { loadCommercialOffers(ShoppingCart.getCart().map { it.book }) }
+        loadCommercialOffers(ShoppingCart.getCart().map { it.book })
         totalPriceWithoutOffer = totalPrice()
 
         // Setup RecyclerView
@@ -49,33 +52,35 @@ class ShoppingCartActivity : AppCompatActivity() {
 
         totalPriceWithoutOfferText.text = getString(R.string.price, totalPriceWithoutOffer)
 
-        // Setup commercial offers dropdown menu
-        val offersSpinner = findViewById<Spinner>(R.id.commercialOffersSpinner)
-        offersSpinner.adapter = ArrayAdapter<String>(
-            this,
-            R.layout.support_simple_spinner_dropdown_item,
-            formatOffers(offers)
-        )
+        offers.observe(this, Observer {
+            // Setup commercial offers dropdown menu
+            val offersSpinner = findViewById<Spinner>(R.id.commercialOffersSpinner)
+            offersSpinner.adapter = ArrayAdapter<String>(
+                this,
+                R.layout.support_simple_spinner_dropdown_item,
+                formatOffers(it)
+            )
 
-        // Setup commercial offer click listener
-        offersSpinner.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val selectedOffer = offers.offers[position]
-                Log.d("selectedOffer", selectedOffer.toString())
+            // Setup commercial offer click listener
+            offersSpinner.onItemSelectedListener = object : OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val selectedOffer = it.offers[position]
+                    Log.d("selectedOffer", selectedOffer.toString())
 
-                // Update total price
-                val offer = calculateOffer(selectedOffer)
-                effectiveOfferText.text = getString(R.string.price, offer)
-                totalPriceText.text = getString(R.string.price, totalPriceWithoutOffer - offer)
+                    // Update total price
+                    val offer = calculateOffer(selectedOffer)
+                    effectiveOfferText.text = getString(R.string.price, offer)
+                    totalPriceText.text = getString(R.string.price, totalPriceWithoutOffer - offer)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {}
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
+        })
     }
 
     /**
@@ -112,16 +117,15 @@ class ShoppingCartActivity : AppCompatActivity() {
     /**
      * Load commercial offers from repository given a list of [books].
      */
-    private suspend fun loadCommercialOffers(books: List<Book>): CommercialOffer =
-        coroutineScope {
-            val offers = async { booksRepository.getCommercialOffers(books.map { it.isbn }) }
+    private fun loadCommercialOffers(books: List<Book>): Job =
+        CoroutineScope(Dispatchers.Main).launch {
+            val offersResult = booksRepository.getCommercialOffers(books.map { it.isbn })
             withContext(Dispatchers.IO) {
-                offers.await().fold({
+                offersResult.fold({
                     Log.e("getCommercialOffers", it.message, it)
-                    CommercialOffer(emptyList())
                 }, {
+                    offers.postValue(it)
                     Log.d("offers", it.toString())
-                    it
                 })
             }
         }
